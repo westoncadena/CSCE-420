@@ -726,6 +726,10 @@ class Queue(object):
     def is_empty(self):
         "Returns true if the queue is empty"
         return len(self.list) == 0
+    
+    def size(self):
+        "Returns size of queue"
+        return len(self.list)
 
 
 class PriorityQueue(object):
@@ -783,7 +787,8 @@ class PriorityQueueWithFunction(PriorityQueue):
 
     def push(self, item):
         "Adds an item to the queue with priority from the priority function"
-        PriorityQueue.push(self, item, self.priority_function(item))
+        print(item[0])
+        PriorityQueue.push(self, item, self.priority_function(item[0]))
 
 
 def manhattan_distance(xy1, xy2):

@@ -341,23 +341,59 @@ class CornersProblem(search.SearchProblem):
         #     self.total_iterations = 0
         "*** YOUR CODE HERE ***"
 
+    
+    # My state space chosen will be the position of pacman and the amount of corners not yet visited
     def get_start_state(self):
         """
         Returns the start state (in your state space, not the full Pacman state space)
         """
+        return (self.starting_position, self.corners)
         "*** YOUR CODE HERE ***"
         util.raise_not_defined()
 
+    # My goal state is when all corners are visited
     def is_goal_state(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raise_not_defined()
+        current_position, corners = state
+        # See if there are any corners not touched yet
+        if len(corners) == 0:
+            return True
+        return False
 
+
+        util.raise_not_defined()
+    # In order to get successors, make a valid move by pacman and check if he visited a corner
     def get_successors(self, state):
         
         "*** YOUR CODE HERE ***"
+        successors = []
+        for action in [
+            Directions.NORTH,
+            Directions.SOUTH,
+            Directions.EAST,
+            Directions.WEST,
+        ]:
+            x, y = state[0]
+            dx, dy = Actions.direction_to_vector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                next_position = (nextx, nexty)
+                cost = 1
+                # Check to see if the next position is on a corner
+                corners_left = []
+                for corner in state[1]:
+                    if corner != next_position:
+                        corners_left.append(corner)
+
+                successors.append(
+                    tools.Transition(((next_position, tuple(corners_left)), action, cost))
+                )
+
+
+        return successors
         # What should this return?
         #     A list of Transitions, with a structure like this:
         #     [
@@ -427,11 +463,25 @@ def corners_heuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
+    from util import manhattan_distance
+    
     corners = problem.corners  # These are the corner coordinates
     walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
-    return 0  # Default to trivial solution
+    current_position, corners = state
+    # check if we are at the goal state
+    if problem.is_goal_state(state):
+        return 0
+    
+    # In order to create a heuristic for the corners function, we will return the max
+    # Manhattan distance from the current position to the remaining corners. By doing this
+    # we are creating a heuristic that is admissible since pacman has to atleast travel this
+    # distance to reach his goal no matter how many corners are left, and consistent since
+    # the Manhattan distance is consistent
+    return max([manhattan_distance(current_position, corner) for corner in corners])
+
+    
+
 
 
 class AStarCornersAgent(SearchAgent):
@@ -545,8 +595,24 @@ def food_heuristic(state, problem):
     problem.heuristic_info['wall_count']
     """
     position, food_grid = state
+    
     "*** YOUR CODE HERE ***"
-    return 0
+
+    from util import manhattan_distance
+
+    food_list = food_grid.as_list()
+    if problem.is_goal_state(state):
+        return 0
+
+     # In order to create a heuristic for the corners function, we will return the max
+    # Manhattan distance from the current position to the remaining food. By doing this
+    # we are creating a heuristic that is admissible since pacman has to atleast travel this
+    # distance to reach his goal no matter how much food is left, and consistent since
+    # the Manhattan distance is consistent
+
+    return max([manhattan_distance(position, food) for food in food_list])
+    
+       
 
 
 class ClosestDotSearchAgent(SearchAgent):
@@ -584,6 +650,10 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(game_state)
 
         "*** YOUR CODE HERE ***"
+        # Use BFS to find the least cost solution closest
+        from search import breadth_first_search
+        return breadth_first_search(problem)
+
         util.raise_not_defined()
 
 
@@ -619,8 +689,11 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         complete the problem definition.
         """
         x, y = state
+        return self.food[x][y]
+
 
         "*** YOUR CODE HERE ***"
+        
         util.raise_not_defined()
 
 

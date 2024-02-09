@@ -34,6 +34,38 @@ def tiny_maze_search(problem):
 
 def depth_first_search(problem):
     "*** YOUR CODE HERE ***"
+    from util import Stack
+
+    # Initalize stack with start state and actions
+    stack = Stack()
+    stack.push((problem.get_start_state(),[]))
+
+    # create a visted set
+    visited = set()
+    
+
+    while not stack.is_empty():
+        # grab the current state and actions
+        current_state, actions = stack.pop()
+
+        
+        # Check to see if current state is the goal state
+        if problem.is_goal_state(current_state):
+            return actions
+        
+        # Added curret state to visited
+        visited.add(current_state)
+        
+        # go through the possible transitions, add them to stack if not visited
+        transitions = problem.get_successors(current_state)
+        for transition in transitions:
+            if transition.state not in visited:
+                new_actions = actions + [transition.action]
+                stack.push((transition.state, new_actions))
+        
+    # return if goal state was not found
+    return
+
     # What does this function need to return?
     #     list of actions that reaches the goal
     # 
@@ -64,13 +96,98 @@ def depth_first_search(problem):
 
 def breadth_first_search(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
+    
+    from util import Queue
+
+    # Initalize queue with start state and actions
+    queue= Queue()
+    queue.push((problem.get_start_state(),[]))
+
+    # create a visted set
+    visited = set()
+    
+
+    while not queue.is_empty():
+        # grab the current state and actions
+        current_state, actions = queue.pop()
+        
+        # Check to see if current state is the goal state
+        if problem.is_goal_state(current_state):
+            return actions
+        
+        # Do not look at a state twice. This might happen if you add a state to the queue multiple times
+        # before it is popped
+        if current_state in visited:
+            continue
+
+        # Added curret state to visited
+        visited.add(current_state)
+        
+        # go through the possible transitions, add them to queue if not visited
+        transitions = problem.get_successors(current_state)
+        
+        for transition in transitions:
+            if transition.state not in visited:
+                new_actions = actions + [transition.action]
+                queue.push((transition.state, new_actions))
+        
+    # return if goal state was not found
+    return
+
+
+
     util.raise_not_defined()
 
 
 def uniform_cost_search(problem, heuristic=None):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+    from util import PriorityQueue
+    # create priority queue with the problem's cost function
+    priorityQueue = PriorityQueue()
+    priorityQueue.update((problem.get_start_state(),[]), 0.0)
+
+    # dictionary to store the actions
+    state_actions = {problem.get_start_state(): []}
+
+    # create a visted set
+    visited = set()
+    
+
+    while not priorityQueue.is_empty():
+        # grab the current state and actions
+        current_state, actions = priorityQueue.pop()
+        
+        # Check to see if current state is the goal state
+        if problem.is_goal_state(current_state):
+            return actions
+        
+        # Do not look at a state twice. This might happen if you add a state to the queue multiple times
+        # before it is popped
+        if current_state in visited:
+            continue
+        
+        # Added curret state to visited
+        visited.add(current_state)
+        
+        # go through the possible transitions, add them to queue if not visited
+        transitions = problem.get_successors(current_state)
+        
+        for transition in transitions:
+            if transition.state not in visited:
+                # add the new action to the list of actions
+                new_actions = actions + [transition.action]
+                # Derive the cost
+                cost = problem.get_cost_of_actions(new_actions)
+                
+                priorityQueue.update((transition.state,new_actions), cost)
+                
+        
+    # return if goal state was not found
+    return
+    
+
+
     util.raise_not_defined()
 
 
@@ -85,6 +202,51 @@ def null_heuristic(state, problem=None):
 def a_star_search(problem, heuristic=null_heuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    from util import PriorityQueue
+    # create priority queue with the problem's cost function
+    priorityQueue = PriorityQueue()
+    priorityQueue.update((problem.get_start_state(),[]), 0.0)
+
+    # dictionary to store the actions
+    state_actions = {problem.get_start_state(): []}
+
+    # create a visted set
+    visited = set()
+    
+
+    while not priorityQueue.is_empty():
+        # grab the current state and actions
+        current_state, actions = priorityQueue.pop()
+        
+        # Check to see if current state is the goal state
+        if problem.is_goal_state(current_state):
+            return actions
+        
+        # Do not look at a state twice. This might happen if you add a state to the queue multiple times
+        # before it is popped
+        if current_state in visited:
+            continue
+        
+        # Added curret state to visited
+        visited.add(current_state)
+        
+        # go through the possible transitions, add them to queue if not visited
+        transitions = problem.get_successors(current_state)
+        
+        for transition in transitions:
+            if transition.state not in visited:
+                # add the new action to the list of actions
+                new_actions = actions + [transition.action]
+                # Derive the cost with the heuristic
+                cost = problem.get_cost_of_actions(new_actions) + heuristic(transition.state, problem)
+                
+                priorityQueue.update((transition.state,new_actions), cost)
+                
+        
+    # return if goal state was not found
+    return
+
+
     
     # What does this function need to return?
     #     list of actions that reaches the goal
