@@ -691,7 +691,7 @@ class Game(object):
 
         agent_index = self.starting_index
         num_agents = len(self.agents)
-
+        
         while not self.game_over:
             # Fetch the next agent
             agent = self.agents[agent_index]
@@ -791,7 +791,6 @@ class Game(object):
             else:
                 action = agent.get_action(observation)
             self.unmute()
-
             # Execute the action
             self.move_history.append((agent_index, action))
             if self.catch_exceptions:

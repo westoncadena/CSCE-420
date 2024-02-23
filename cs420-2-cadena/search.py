@@ -64,7 +64,44 @@ def depth_first_search(problem):
 
 def breadth_first_search(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
+    """Search the shallowest nodes in the search tree first."""
+    
+    from util import Queue
+
+    # Initalize queue with start state and actions
+    queue= Queue()
+    queue.push((problem.get_start_state(),[]))
+
+    # create a visted set
+    visited = set()
+    
+
+    while not queue.is_empty():
+        # grab the current state and actions
+        current_state, actions = queue.pop()
+        
+        # Check to see if current state is the goal state
+        if problem.is_goal_state(current_state):
+            return actions
+        
+        # Do not look at a state twice. This might happen if you add a state to the queue multiple times
+        # before it is popped
+        if current_state in visited:
+            continue
+
+        # Added curret state to visited
+        visited.add(current_state)
+        
+        # go through the possible transitions, add them to queue if not visited
+        transitions = problem.get_successors(current_state)
+        
+        for transition in transitions:
+            if transition.state not in visited:
+                new_actions = actions + [transition.action]
+                queue.push((transition.state, new_actions))
+        
+    # return if goal state was not found
+    return 
     util.raise_not_defined()
 
 
